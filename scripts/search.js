@@ -4,11 +4,9 @@ const Util = require('./util')
 const Cred = require('../data/.cred.json')
 const Idols = require('../data/idols.json')
 
-/**
- * 全アイドルのガチャツイートを検索して結果を返す
- *
- * @returns 分析結果
- */
+const client = new Twitter(Cred)
+
+// 全てのアイドルのガチャ報告ツイートを分析して結果を返す
 async function search() {
   const results = await Promise.all(
     Idols.map((name) => fetchGachaTweetsInfo(name))
@@ -17,32 +15,48 @@ async function search() {
   return results
 }
 
-/**
- * ガチャのツイートを検索して分析結果を返す
- *
- * @param {String} idolName アイドル名
- * @returns ツイートの分析結果
- */
+// ガチャ報告ツイートの分析結果を取得
 async function fetchGachaTweetsInfo(idolName) {
-  const client = new Twitter(Cred)
   const nowDate = Util.formatDate(new Date())
 
   const param = {
     q: `${idolName}に出会ったよ！ since:${nowDate}_00:00:00_JST filter:images -filter:retweets`,
+    max_id: '',
     count: 100
   }
 
-  // ツイートを検索
+  // ツイート数を計算
+  // ------
+  // 一度に100件までしか取ってこれないので
+  // 取得数が100件なら、一番古いツイートのidをmax_idに指定して
+  // 取得数がなくなるまで繰り返す
+  let statuses = {}
+  let count = 0
+  do {
+    statuses = await searchTweets(param)
+
+    const length = statuses.length
+    if (!length) break
+
+    const oldestTweet = statuses.slice(-1)[0]
+    param.max_id = oldestTweet.id_str
+
+    count += statuses.length
+  } while (statuses.length >= 100)
+
+  return {
+    idolName: idolName,
+    tweetsCount: count
+  }
+}
+
+// ツイートを検索する
+async function searchTweets(param) {
   const results = await client
     .get('search/tweets', param)
     .catch((err) => console.error(err))
 
-  const statuses = results.statuses
-
-  return {
-    idolName: idolName,
-    tweetsCount: statuses.length
-  }
+  return results.statuses
 }
 
 module.exports = search
