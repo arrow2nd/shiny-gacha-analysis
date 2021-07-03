@@ -1,13 +1,22 @@
 'use strict'
-const Idols = require('./data/idols.json')
 const Search = require('./scripts/search')
+const Plot = require('nodeplotlib')
 
 main()
 
 async function main() {
-  const results = await Promise.all(Idols.map((name) => Search(name)))
+  const results = await Search()
+
+  const chartData = {
+    x: [],
+    y: [],
+    type: 'bar'
+  }
 
   for (const result of results) {
-    console.log(`${result.idolName} : ${result.tweetsCount}人が出会いました`)
+    chartData.x.push(result.idolName)
+    chartData.y.push(result.tweetsCount)
   }
+
+  Plot.plot([chartData])
 }
