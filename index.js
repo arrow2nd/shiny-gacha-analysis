@@ -5,7 +5,8 @@ const Plot = require('nodeplotlib')
 main()
 
 async function main() {
-  const results = await Search()
+  const date = new Date()
+  const results = await Search(date)
 
   const chartData = {
     x: [],

@@ -7,20 +7,20 @@ const Idols = require('../data/idols.json')
 const client = new Twitter(Cred)
 
 // 全てのアイドルのガチャ報告ツイートを分析して結果を返す
-async function search() {
+async function search(date) {
   const results = await Promise.all(
-    Idols.map((name) => fetchGachaTweetsInfo(name))
+    Idols.map((name) => fetchGachaTweetsInfo(name, date))
   )
 
   return results
 }
 
 // ガチャ報告ツイートの分析結果を取得
-async function fetchGachaTweetsInfo(idolName) {
-  const nowDate = Util.formatDate(new Date())
+async function fetchGachaTweetsInfo(idolName, date) {
+  const dateStr = Util.formatDate(date)
 
   const param = {
-    q: `${idolName}に出会ったよ！ since:${nowDate}_00:00:00_JST filter:images -filter:retweets`,
+    q: `${idolName}に出会ったよ！ since:${dateStr}_00:00:00_JST until:${dateStr}_23:59:59_JST filter:images -filter:retweets`,
     max_id: '',
     count: 100
   }
