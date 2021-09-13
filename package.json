@@ -5,6 +5,9 @@
   "repository": "git@github.com:arrow2nd/shiny-gacha-analysis.git",
   "author": "arrow2nd <44780846+arrow2nd@users.noreply.github.com>",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "nodeplotlib": "^0.7.3",
     "twitter": "^1.7.1"
